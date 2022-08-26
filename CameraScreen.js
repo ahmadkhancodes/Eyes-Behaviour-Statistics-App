@@ -3,10 +3,14 @@ import React, { useState, useEffect } from "react";
 import { Camera } from "expo-camera";
 import * as FaceDetector from "expo-face-detector";
 import { Audio } from "expo-av";
+import { useIsFocused } from "@react-navigation/native";
+import { FontAwesome } from "@expo/vector-icons";
 
 let sub;
 
 export default function CameraScreen() {
+  const isFocused = useIsFocused();
+
   const [hasPermission, setHasPermission] = React.useState(); //for storing camera permission
   const [faceData, setFaceData] = React.useState([]); //in this state we are storing user face expressions
   const [sound, setSound] = React.useState();
@@ -25,7 +29,7 @@ export default function CameraScreen() {
     })();
   }, []);
 
-  if (hasPermission === false) {
+  if (hasPermission === false && !isFocused) {
     return <Text>No access to camera</Text>;
   }
 
@@ -108,51 +112,62 @@ export default function CameraScreen() {
     }
   }, [eyesShut]);
 
-  return (
-    <Camera
-      type={Camera.Constants.Type.front}
-      style={styles.camera}
-      onFacesDetected={handleFacesDetected} // this is the main function which detect the user face
-      faceDetectorSettings={{
-        mode: FaceDetector.FaceDetectorMode.fast,
-        detectLandmarks: FaceDetector.FaceDetectorLandmarks.all,
-        runClassifications: FaceDetector.FaceDetectorClassifications.all,
-        minDetectionInterval: 100,
-        tracking: true,
-      }}
-    >
-      {faceData.length != 0 ? (
-        <View style={styles.faces} index={faceData?.[0].faceID}>
-          <Text style={styles.faceDesc}>
-            NOSE_BASE x {faceData?.[0]?.NOSE_BASE?.x.toFixed(3)} y{" "}
-            {faceData?.[0]?.NOSE_BASE?.y.toFixed(3)}{" "}
-          </Text>
-          <Text style={styles.faceDesc}>
-            MID_MOUTH x{" "}
-            {(
-              (faceData?.[0]?.RIGHT_MOUTH?.x + faceData?.[0]?.LEFT_MOUTH?.x) /
-              2
-            ).toFixed(3)}{" "}
-            y{" "}
-            {(
-              (faceData?.[0]?.RIGHT_MOUTH?.y + faceData?.[0]?.LEFT_MOUTH?.y) /
-              2
-            ).toFixed(3)}{" "}
-          </Text>
+  if (isFocused) {
+    return (
+      <Camera
+        type={Camera.Constants.Type.front}
+        style={styles.camera}
+        onFacesDetected={handleFacesDetected} // this is the main function which detect the user face
+        faceDetectorSettings={{
+          mode: FaceDetector.FaceDetectorMode.fast,
+          detectLandmarks: FaceDetector.FaceDetectorLandmarks.all,
+          runClassifications: FaceDetector.FaceDetectorClassifications.all,
+          minDetectionInterval: 100,
+          tracking: true,
+        }}
+      >
+        <FontAwesome
+          style={styles.indicator}
+          name="circle"
+          size={50}
+          color={faceData.length == 0 ? "black" : eyesShut ? "red" : "green"}
+        />
+        {faceData.length != 0 ? (
+          <View style={styles.faces} index={faceData?.[0].faceID}>
+            <Text style={styles.faceDesc}>
+              NOSE_BASE x {faceData?.[0]?.NOSE_BASE?.x.toFixed(3)} y{" "}
+              {faceData?.[0]?.NOSE_BASE?.y.toFixed(3)}{" "}
+            </Text>
+            <Text style={styles.faceDesc}>
+              MID_MOUTH x{" "}
+              {(
+                (faceData?.[0]?.RIGHT_MOUTH?.x + faceData?.[0]?.LEFT_MOUTH?.x) /
+                2
+              ).toFixed(3)}{" "}
+              y{" "}
+              {(
+                (faceData?.[0]?.RIGHT_MOUTH?.y + faceData?.[0]?.LEFT_MOUTH?.y) /
+                2
+              ).toFixed(3)}{" "}
+            </Text>
 
-          <Text style={styles.faceDesc}>
-            rollAngle {faceData?.[0]?.rollAngle?.toFixed(3)}{" "}
-          </Text>
-          <Text style={styles.faceDesc}>Distance: {distLine.toFixed(3)}</Text>
-          <Text style={styles.faceDesc}>Eyes Shut: {eyesShut.toString()}</Text>
-        </View>
-      ) : (
-        <View style={styles.faces}>
-          <Text style={styles.faceDesc}>No face</Text>
-        </View>
-      )}
-    </Camera>
-  );
+            <Text style={styles.faceDesc}>
+              rollAngle {faceData?.[0]?.rollAngle?.toFixed(3)}{" "}
+            </Text>
+            <Text style={styles.faceDesc}>Distance: {distLine.toFixed(3)}</Text>
+            <Text style={styles.faceDesc}>
+              Eyes Shut: {eyesShut.toString()}
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.faces}>
+            <Text style={styles.faceDesc}>No face</Text>
+          </View>
+        )}
+      </Camera>
+    );
+  }
+  return null;
 }
 
 const styles = StyleSheet.create({
@@ -170,5 +185,9 @@ const styles = StyleSheet.create({
   },
   faceDesc: {
     fontSize: 20,
+  },
+  indicator: {
+    position: "relative",
+    top: -250,
   },
 });

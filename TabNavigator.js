@@ -9,8 +9,10 @@ import ListScreen from "./ListScreen";
 export default TabNavigator = () => {
   return (
     <Tab.Navigator
+      initialRouteName="Chart Screen"
       screenOptions={{
         tabBarShowLabel: false,
+        headerShown: false,
         tabBarStyle: {
           position: "absolute",
           bottom: 20,
@@ -25,7 +27,7 @@ export default TabNavigator = () => {
       }}
     >
       <Tab.Screen
-        name="Camera"
+        name="Camera Screen"
         component={CameraScreen}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -40,7 +42,7 @@ export default TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Chart"
+        name="Chart Screen"
         component={ChartScreen}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -55,7 +57,7 @@ export default TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="List"
+        name="List Screen"
         component={ListScreen}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -75,7 +77,7 @@ export default TabNavigator = () => {
 
 const styles = StyleSheet.create({
   shadow: {
-    shadowColor: "#7f5df0",
+    shadowColor: "black",
     shadowOffset: {
       width: 0,
       height: 10,
