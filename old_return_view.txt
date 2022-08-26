@@ -1,0 +1,24 @@
+ {faceData.length != 0 ? (
+        <View style={styles.faces} index={faceData?.[0].faceID}>
+          <Text style={styles.faceDesc}>
+          NOSE_BASE x {faceData?.[0]?.NOSE_BASE?.x.toFixed(3)} y {faceData?.[0]?.NOSE_BASE?.y.toFixed(3)}{" "}
+          </Text>
+          <Text style={styles.faceDesc}>
+            rollAngle {faceData?.[0]?.rollAngle?.toFixed(3)}{" "}
+          </Text>
+          <Text style={styles.faceDesc}>
+            Right Eye: {faceData?.[0]?.rightEyeOpenProbability?.toFixed(2)}
+          </Text>
+          <Text style={styles.faceDesc}>
+            Left Eye: {faceData?.[0]?.leftEyeOpenProbability?.toFixed(2)}{" "}
+          </Text>
+          <Text style={styles.faceDesc}>
+            Eyes Shut: {eyesShut.toString()}
+          </Text>
+          <Button title="Çal" onPress={playSound} />
+        </View>
+      ) : (
+        <View style={styles.faces}>
+          <Text style={styles.faceDesc}>No face</Text>
+        </View>
+      )}
