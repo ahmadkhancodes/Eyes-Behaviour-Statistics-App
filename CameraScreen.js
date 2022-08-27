@@ -3,13 +3,17 @@ import React, { useState, useEffect } from "react";
 import { Camera } from "expo-camera";
 import * as FaceDetector from "expo-face-detector";
 import { Audio } from "expo-av";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useRoute } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 
 let sub;
+var timeReset = 0;
 
 export default function CameraScreen() {
   const isFocused = useIsFocused();
+  // Calculating Eyes shuting Time
+  const [eyesShutsData, setEyesShutsData] = useState([]);
+  const [eyesOnTime, setEyesOnTime] = useState();
 
   const [hasPermission, setHasPermission] = React.useState(); //for storing camera permission
   const [faceData, setFaceData] = React.useState([]); //in this state we are storing user face expressions
@@ -47,7 +51,7 @@ export default function CameraScreen() {
   React.useEffect(() => {
     return sound
       ? () => {
-          console.log("Unloading Sound");
+          // console.log("Unloading Sound");
           sound.unloadAsync();
         }
       : undefined;
@@ -67,7 +71,7 @@ export default function CameraScreen() {
   React.useEffect(() => {
     return sound
       ? () => {
-          console.log("Unloading Sound");
+          // console.log("Unloading Sound");
           sound.unloadAsync();
         }
       : undefined;
@@ -75,8 +79,7 @@ export default function CameraScreen() {
 
   const handleFacesDetected = ({ faces }) => {
     setFaceData(faces); // we are storing data to show faces detail on screen
-    console.log(faces);
-
+    // console.log(faces);
     //const mouthMidx = ((faceData?.[0]?.RIGHT_MOUTH?.x+faceData?.[0]?.LEFT_MOUTH?.x)/2)
     //const mouthMidy = ((faceData?.[0]?.RIGHT_MOUTH?.y.toFixed(3)+faceData?.[0]?.LEFT_MOUTH?.y.toFixed(3))/2)
     const distLine = Math.sqrt(
@@ -97,6 +100,33 @@ export default function CameraScreen() {
         faces?.[0]?.leftEyeOpenProbability < 0.7) ||
       distLine < 9;
     setEyesShut(eyesShut); // here we store the current eyer status
+    if (eyesShut && timeReset == 0) {
+      var today = new Date();
+      var time =
+        today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      setEyesOnTime(time);
+      // console.log("Eyes Shut On: ", eyesShut, " Time : ", time);
+      timeReset++;
+    }
+    if (!eyesShut && timeReset != 0) {
+      var today = new Date();
+      var time =
+        today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      // console.log("Eyes Shut Close: ", eyesShut, " Time : ", time);
+      timeReset = 0;
+      if (eyesOnTime != time) {
+        eyesShutsData.push({
+          shutOnTime: eyesOnTime,
+          shutOffTime: time,
+        });
+        setEyesShutsData(eyesShutsData);
+        console.log("DATA : ", eyesShutsData);
+      }
+      setEyesOnTime(0);
+    }
+    // if (eyesShutsData.length != 0) {
+    //   console.log("DATA : ", eyesShutsData);
+    // }
   };
 
   //this is the main useEffect which play sound after every 1000
