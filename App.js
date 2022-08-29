@@ -11,17 +11,11 @@ import { dataActions } from "./store/data-slice";
 const App = () => {
   const dispatch = useDispatch();
   useEffect(() => {
-    var dateKey =
-      new Date().getDate() +
-      "-" +
-      (new Date().getMonth() + 1) +
-      "-" +
-      new Date().getUTCFullYear();
     onValue(ref(db), (snapshot) => {
       const data = snapshot.val();
       if (data !== null) {
         dispatch(dataActions.setAllData(data));
-        dispatch(dataActions.setTodayData(data[dateKey]["DATA_FROM_STORE"]));
+        console.log("All Data Fetched");
       }
     });
   }, []);

@@ -14,11 +14,15 @@ const dataSlice = createSlice({
       temp.push(actions.payload);
       state.todayData = temp;
     },
-    setTodayData(state, actions) {
-      state.todayData = actions.payload;
-    },
     setAllData(state, actions) {
       state.allData = actions.payload;
+      var dateKey =
+        new Date().getDate() +
+        "-" +
+        (new Date().getMonth() + 1) +
+        "-" +
+        new Date().getUTCFullYear();
+      state.todayData = actions.payload[dateKey]["DATA_FROM_STORE"];
     },
   },
 });

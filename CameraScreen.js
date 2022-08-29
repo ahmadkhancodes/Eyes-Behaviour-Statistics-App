@@ -107,6 +107,7 @@ export default function CameraScreen() {
       distLine < 9;
     setEyesShut(eyesShut); // here we store the current eyer status
     if (eyesShut && timeReset == 0) {
+      var AMPM = new Date().getHours() < 12 ? "AM" : "PM";
       var today = new Date();
       var time =
         today.getHours() +
@@ -115,14 +116,13 @@ export default function CameraScreen() {
         ":" +
         today.getSeconds() +
         " " +
-        today
-          .toLocaleString()
-          .slice(today.toLocaleString().toString().length - 2);
+        AMPM;
       setEyesOnTime(time);
       // console.log("Eyes Shut On: ", eyesShut, " Time : ", time);
       timeReset++;
     }
     if (!eyesShut && timeReset != 0) {
+      var AMPM = new Date().getHours() < 12 ? "AM" : "PM";
       var today = new Date();
       var time =
         today.getHours() +
@@ -131,9 +131,7 @@ export default function CameraScreen() {
         ":" +
         today.getSeconds() +
         " " +
-        today
-          .toLocaleString()
-          .slice(today.toLocaleString().toString().length - 2);
+        AMPM;
       // console.log("Eyes Shut Close: ", eyesShut, " Time : ", time);
       timeReset = 0;
       if (eyesOnTime != time) {
@@ -150,7 +148,7 @@ export default function CameraScreen() {
             date: dateKey + "-" + new Date().getDay(),
           })
         );
-        // console.log("DATA : ", eyesShutsData);
+        console.log("Today DATA : ", DATA_FROM_STORE);
         // Storing Data into Firebase
         set(ref(db, `/${dateKey}`), {
           DATA_FROM_STORE,
