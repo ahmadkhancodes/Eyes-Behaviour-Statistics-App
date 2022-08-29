@@ -1,10 +1,10 @@
-import { View, Text } from "react-native";
+import { SafeAreaView, Text } from "react-native";
 import React from "react";
 
 export default function ChartScreen() {
   return (
-    <View>
+    <SafeAreaView>
       <Text>ChartScreen</Text>
-    </View>
+    </SafeAreaView>
   );
 }

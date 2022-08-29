@@ -5,11 +5,17 @@ import * as FaceDetector from "expo-face-detector";
 import { Audio } from "expo-av";
 import { useIsFocused, useRoute } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
+import { set, ref } from "firebase/database";
+import { db } from "./firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { dataActions } from "./store/data-slice";
 
 let sub;
 var timeReset = 0;
 
 export default function CameraScreen() {
+  const DATA_FROM_STORE = useSelector((state) => state.data.todayData);
+  const dispatch = useDispatch();
   const isFocused = useIsFocused();
   // Calculating Eyes shuting Time
   const [eyesShutsData, setEyesShutsData] = useState([]);
@@ -103,7 +109,15 @@ export default function CameraScreen() {
     if (eyesShut && timeReset == 0) {
       var today = new Date();
       var time =
-        today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        today.getHours() +
+        ":" +
+        today.getMinutes() +
+        ":" +
+        today.getSeconds() +
+        " " +
+        today
+          .toLocaleString()
+          .slice(today.toLocaleString().toString().length - 2);
       setEyesOnTime(time);
       // console.log("Eyes Shut On: ", eyesShut, " Time : ", time);
       timeReset++;
@@ -111,16 +125,36 @@ export default function CameraScreen() {
     if (!eyesShut && timeReset != 0) {
       var today = new Date();
       var time =
-        today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        today.getHours() +
+        ":" +
+        today.getMinutes() +
+        ":" +
+        today.getSeconds() +
+        " " +
+        today
+          .toLocaleString()
+          .slice(today.toLocaleString().toString().length - 2);
       // console.log("Eyes Shut Close: ", eyesShut, " Time : ", time);
       timeReset = 0;
       if (eyesOnTime != time) {
-        eyesShutsData.push({
-          shutOnTime: eyesOnTime,
-          shutOffTime: time,
+        var dateKey =
+          new Date().getDate() +
+          "-" +
+          (new Date().getMonth() + 1) +
+          "-" +
+          new Date().getUTCFullYear();
+        dispatch(
+          dataActions.addData({
+            shutOnTime: eyesOnTime,
+            shutOffTime: time,
+            date: dateKey + "-" + new Date().getDay(),
+          })
+        );
+        // console.log("DATA : ", eyesShutsData);
+        // Storing Data into Firebase
+        set(ref(db, `/${dateKey}`), {
+          DATA_FROM_STORE,
         });
-        setEyesShutsData(eyesShutsData);
-        console.log("DATA : ", eyesShutsData);
       }
       setEyesOnTime(0);
     }

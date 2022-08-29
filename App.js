@@ -1,26 +1,41 @@
 import { View, Text } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import TabNavigator from "./TabNavigator";
-import { initializeApp } from "firebase/app";
+import { Provider, useDispatch } from "react-redux";
+import store from "./store/index";
+import { ref, onValue } from "firebase/database";
+import { db } from "./firebase";
+import { dataActions } from "./store/data-slice";
 
-export default function App() {
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyB9RJPAtsbZLjC8th7lRTMrLdCODlNLV4k",
-    authDomain: "eyes-movement-stat-app.firebaseapp.com",
-    projectId: "eyes-movement-stat-app",
-    storageBucket: "eyes-movement-stat-app.appspot.com",
-    messagingSenderId: "845169296336",
-    appId: "1:845169296336:web:b698999c119ed3624c6fd5",
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-
+const App = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    var dateKey =
+      new Date().getDate() +
+      "-" +
+      (new Date().getMonth() + 1) +
+      "-" +
+      new Date().getUTCFullYear();
+    onValue(ref(db), (snapshot) => {
+      const data = snapshot.val();
+      if (data !== null) {
+        dispatch(dataActions.setAllData(data));
+        dispatch(dataActions.setTodayData(data[dateKey]["DATA_FROM_STORE"]));
+      }
+    });
+  }, []);
   return (
     <NavigationContainer>
       <TabNavigator />
     </NavigationContainer>
+  );
+};
+
+export default function AppWrapper() {
+  return (
+    <Provider store={store}>
+      <App />
+    </Provider>
   );
 }
