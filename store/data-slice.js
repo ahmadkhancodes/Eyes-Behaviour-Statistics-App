@@ -22,7 +22,7 @@ const dataSlice = createSlice({
         (new Date().getMonth() + 1) +
         "-" +
         new Date().getUTCFullYear();
-      state.todayData = actions.payload[dateKey]["DATA_FROM_STORE"];
+      state.todayData = actions.payload["30-8-2022"]["DATA_FROM_STORE"];
     },
   },
 });
