@@ -1,44 +1,41 @@
 import {
   SafeAreaView,
   Text,
+  View,
   ScrollView,
   StyleSheet,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import Constants from "expo-constants";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { VictoryChart, VictoryBar, VictoryTheme } from "victory-native";
 import { getGraphData } from "./utils";
 import DropDownPicker from "react-native-dropdown-picker";
-import { ref, onValue } from "firebase/database";
-import { db } from "./firebase";
-import { dataActions } from "./store/data-slice";
+import { dateKey } from "./utils";
 
 export default function ChartScreen() {
   var ALL_DATA = useSelector((state) => state.data.allData);
-  const [DATA, setDATA] = useState([]);
+  var todayData = useSelector((state) => state.data.todayData);
   var dates_arr = [];
   Object.keys(ALL_DATA).map((item) => {
     dates_arr.push({ label: item, value: item });
   });
   // States Data for Dropdown Picker
   const [open, setOpen] = useState(false);
-  var dateKey =
-    new Date().getDate() +
-    "-" +
-    (new Date().getMonth() + 1) +
-    "-" +
-    new Date().getUTCFullYear();
+  new Date().getUTCFullYear();
   const [value, setValue] = useState(dateKey);
   const [items, setItems] = useState(dates_arr);
+  const [DATA, setDATA] = useState([]);
 
   React.useEffect(() => {
+    if (ALL_DATA[value]) {
+      setDATA(ALL_DATA[value]["DATA_FROM_STORE"]);
+    }
     setItems(dates_arr);
-    // setDATA(ALL_DATA[value]["DATA_FROM_STORE"]);
-    console.log(ALL_DATA);
-    console.log(value);
-  }, [value]);
+  }, [todayData, value]);
+
   var CHART_DATA = getGraphData(DATA);
   return (
     <SafeAreaView style={styles.container}>
@@ -57,7 +54,7 @@ export default function ChartScreen() {
             <VictoryChart
               domainPadding={{ x: 25 }}
               theme={VictoryTheme.material}
-              width={CHART_DATA.length > 3 ? CHART_DATA.length * 140 : 500}
+              width={CHART_DATA.length > 3 ? CHART_DATA.length * 150 : 500}
               height={
                 Dimensions.get("screen").height -
                 (Dimensions.get("screen").height * 40) / 100

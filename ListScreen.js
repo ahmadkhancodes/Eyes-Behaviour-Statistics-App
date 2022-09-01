@@ -4,30 +4,27 @@ import Constants from "expo-constants";
 import { useSelector } from "react-redux";
 import { FontAwesome } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
-import { extractDate } from "./utils";
+import { dateKey } from "./utils";
 
 export default function ListScreen() {
   var ALL_DATA = useSelector((state) => state.data.allData);
-  const [DATA, setDATA] = useState([]);
+  var todayData = useSelector((state) => state.data.todayData);
   // States Data for Dropdown Picker
   const [open, setOpen] = useState(false);
-  var dateKey =
-    new Date().getDate() +
-    "-" +
-    (new Date().getMonth() + 1) +
-    "-" +
-    new Date().getUTCFullYear();
   var dates_arr = [];
   Object.keys(ALL_DATA).map((item) => {
     dates_arr.push({ label: item, value: item });
   });
   const [value, setValue] = useState(dateKey);
   const [items, setItems] = useState(dates_arr);
+  const [DATA, setDATA] = useState([]);
   var DATA_TO_DISPLAY = [];
   React.useEffect(() => {
+    if (ALL_DATA[value]) {
+      setDATA(ALL_DATA[value]["DATA_FROM_STORE"]);
+    }
     setItems(dates_arr);
-    setDATA(ALL_DATA[value]["DATA_FROM_STORE"]);
-  }, [value]);
+  }, [todayData, value]);
   if (DATA != []) {
     // DATA = DATA["30-8-2022"]["DATA_FROM_STORE"];
     for (var i = 0; i < DATA.length; i++) {

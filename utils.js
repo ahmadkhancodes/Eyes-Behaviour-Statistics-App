@@ -13,3 +13,12 @@ export const getGraphData = (array) => {
 export const extractDate = (date) => {
   return date.split(" ")[1];
 };
+
+// export const dateKey = "1-9-2022";
+
+export const dateKey =
+  new Date().getDate() +
+  "-" +
+  (new Date().getMonth() + 1) +
+  "-" +
+  new Date().getUTCFullYear();

@@ -34,7 +34,7 @@ export default TabNavigator = () => {
             <View>
               <Entypo
                 name="camera"
-                size={40}
+                size={30}
                 color={focused ? "black" : "grey"}
               />
             </View>
@@ -49,7 +49,7 @@ export default TabNavigator = () => {
             <View>
               <AntDesign
                 name="barschart"
-                size={40}
+                size={30}
                 color={focused ? "black" : "grey"}
               />
             </View>
@@ -64,7 +64,7 @@ export default TabNavigator = () => {
             <View>
               <FontAwesome5
                 name="list-ul"
-                size={40}
+                size={30}
                 color={focused ? "black" : "grey"}
               />
             </View>

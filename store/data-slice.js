@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { dateKey } from "../utils";
 
 const initialDataState = {
   todayData: new Array(),
@@ -16,13 +17,12 @@ const dataSlice = createSlice({
     },
     setAllData(state, actions) {
       state.allData = actions.payload;
-      var dateKey =
-        new Date().getDate() +
-        "-" +
-        (new Date().getMonth() + 1) +
-        "-" +
-        new Date().getUTCFullYear();
-      state.todayData = actions.payload[dateKey]["DATA_FROM_STORE"];
+      if (!actions.payload[dateKey]) {
+        console.log("IN");
+        state.todayData = [];
+      } else {
+        state.todayData = actions.payload[dateKey]["DATA_FROM_STORE"];
+      }
     },
   },
 });

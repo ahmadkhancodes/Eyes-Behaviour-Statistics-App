@@ -3,22 +3,22 @@ import React, { useState, useEffect } from "react";
 import { Camera } from "expo-camera";
 import * as FaceDetector from "expo-face-detector";
 import { Audio } from "expo-av";
-import { useIsFocused, useRoute } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 import { set, ref } from "firebase/database";
 import { db } from "./firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { dataActions } from "./store/data-slice";
+import { dateKey } from "./utils";
 
 let sub;
 var timeReset = 0;
 
 export default function CameraScreen() {
-  const DATA_FROM_STORE = useSelector((state) => state.data.todayData);
+  var DATA_FROM_STORE = useSelector((state) => state.data.todayData);
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   // Calculating Eyes shuting Time
-  const [eyesShutsData, setEyesShutsData] = useState([]);
   const [eyesOnTime, setEyesOnTime] = useState();
   const [eyesOnTimeStamp, setEyesOnTimeStamp] = useState();
 
@@ -27,10 +27,7 @@ export default function CameraScreen() {
   const [sound, setSound] = React.useState();
 
   const [eyesShut, setEyesShut] = useState(false);
-  const [mouthMidx, setmouthMidx] = useState();
-  const [mouthMidy, setmouthMidy] = useState();
   const [distLine, setdistLine] = useState();
-  const [boolsistLine, setboolsistLine] = useState();
 
   React.useEffect(() => {
     //this piece of code runs first time when project start
@@ -74,6 +71,13 @@ export default function CameraScreen() {
 
     await sound.playAsync(); //this functions runs the sound
   }
+
+  React.useEffect(() => {
+    // Storing Data into Firebase
+    set(ref(db, `/${dateKey}`), {
+      DATA_FROM_STORE,
+    });
+  }, [DATA_FROM_STORE]);
 
   React.useEffect(() => {
     return sound
@@ -139,12 +143,6 @@ export default function CameraScreen() {
       // console.log("Eyes Shut Close: ", eyesShut, " Time : ", time);
       timeReset = 0;
       if (eyesOnTime != time) {
-        var dateKey =
-          new Date().getDate() +
-          "-" +
-          (new Date().getMonth() + 1) +
-          "-" +
-          new Date().getUTCFullYear();
         dispatch(
           dataActions.addData({
             shutOnTime: eyesOnTime,
@@ -153,11 +151,7 @@ export default function CameraScreen() {
             diff: (timeStamp - eyesOnTimeStamp) / 1000 / 60,
           })
         );
-        console.log("Today DATA : ", DATA_FROM_STORE);
-        // Storing Data into Firebase
-        set(ref(db, `/${dateKey}`), {
-          DATA_FROM_STORE,
-        });
+        // console.log("Today DATA : ", DATA_FROM_STORE);
       }
       setEyesOnTime(0);
     }
@@ -193,44 +187,43 @@ export default function CameraScreen() {
           tracking: true,
         }}
       >
-        <FontAwesome
-          style={styles.indicator}
-          name="circle"
-          size={50}
-          color={faceData.length == 0 ? "black" : eyesShut ? "red" : "green"}
-        />
-        {faceData.length != 0 ? (
-          <View style={styles.faces} index={faceData?.[0].faceID}>
-            <Text style={styles.faceDesc}>
-              NOSE_BASE x {faceData?.[0]?.NOSE_BASE?.x.toFixed(3)} y{" "}
-              {faceData?.[0]?.NOSE_BASE?.y.toFixed(3)}{" "}
-            </Text>
-            <Text style={styles.faceDesc}>
-              MID_MOUTH x{" "}
-              {(
-                (faceData?.[0]?.RIGHT_MOUTH?.x + faceData?.[0]?.LEFT_MOUTH?.x) /
-                2
-              ).toFixed(3)}{" "}
-              y{" "}
-              {(
-                (faceData?.[0]?.RIGHT_MOUTH?.y + faceData?.[0]?.LEFT_MOUTH?.y) /
-                2
-              ).toFixed(3)}{" "}
-            </Text>
-
-            <Text style={styles.faceDesc}>
-              rollAngle {faceData?.[0]?.rollAngle?.toFixed(3)}{" "}
-            </Text>
-            <Text style={styles.faceDesc}>Distance: {distLine.toFixed(3)}</Text>
-            <Text style={styles.faceDesc}>
-              Eyes Shut: {eyesShut.toString()}
+        <View
+          style={{
+            backgroundColor: "white",
+            position: "absolute",
+            top: 50,
+            left: 10,
+            padding: 5,
+          }}
+        >
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              borderWidth: 2,
+              borderColor: "grey",
+              paddingHorizontal: 20,
+            }}
+          >
+            <FontAwesome
+              name="circle"
+              size={25}
+              color={
+                faceData.length == 0 ? "black" : eyesShut ? "red" : "green"
+              }
+            />
+            <Text
+              style={{
+                fontSize: 15,
+                alignSelf: "center",
+                marginLeft: 5,
+                fontWeight: "bold",
+              }}
+            >
+              {faceData.length == 0 ? "" : eyesShut ? "Sleeping" : "Awake"}
             </Text>
           </View>
-        ) : (
-          <View style={styles.faces}>
-            <Text style={styles.faceDesc}>No face</Text>
-          </View>
-        )}
+        </View>
       </Camera>
     );
   }
@@ -252,9 +245,5 @@ const styles = StyleSheet.create({
   },
   faceDesc: {
     fontSize: 20,
-  },
-  indicator: {
-    position: "relative",
-    top: -250,
   },
 });

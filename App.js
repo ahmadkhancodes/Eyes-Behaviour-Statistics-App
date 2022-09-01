@@ -7,15 +7,17 @@ import store from "./store/index";
 import { ref, onValue } from "firebase/database";
 import { db } from "./firebase";
 import { dataActions } from "./store/data-slice";
+import { LogBox } from "react-native";
+LogBox.ignoreAllLogs(true);
 
 const App = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     onValue(ref(db), (snapshot) => {
-      const data = snapshot.val();
+      const data = snapshot.val() || {};
       if (data !== null) {
         dispatch(dataActions.setAllData(data));
-        console.log("All Data Fetched");
+        console.log("All Data Fetched from APP.JS");
       }
     });
   }, []);
