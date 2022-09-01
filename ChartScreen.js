@@ -11,23 +11,35 @@ import { useSelector } from "react-redux";
 import { VictoryChart, VictoryBar, VictoryTheme } from "victory-native";
 import { getGraphData } from "./utils";
 import DropDownPicker from "react-native-dropdown-picker";
+import { ref, onValue } from "firebase/database";
+import { db } from "./firebase";
+import { dataActions } from "./store/data-slice";
 
 export default function ChartScreen() {
-  // States Data for Dropdown Picker
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState(dates_arr);
-
-  var DATA = useSelector((state) => state.data.todayData);
   var ALL_DATA = useSelector((state) => state.data.allData);
+  const [DATA, setDATA] = useState([]);
   var dates_arr = [];
   Object.keys(ALL_DATA).map((item) => {
     dates_arr.push({ label: item, value: item });
   });
+  // States Data for Dropdown Picker
+  const [open, setOpen] = useState(false);
+  var dateKey =
+    new Date().getDate() +
+    "-" +
+    (new Date().getMonth() + 1) +
+    "-" +
+    new Date().getUTCFullYear();
+  const [value, setValue] = useState(dateKey);
+  const [items, setItems] = useState(dates_arr);
+
   React.useEffect(() => {
     setItems(dates_arr);
-  }, []);
-  const CHART_DATA = getGraphData(DATA);
+    // setDATA(ALL_DATA[value]["DATA_FROM_STORE"]);
+    console.log(ALL_DATA);
+    console.log(value);
+  }, [value]);
+  var CHART_DATA = getGraphData(DATA);
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Chart Screen</Text>
@@ -45,7 +57,7 @@ export default function ChartScreen() {
             <VictoryChart
               domainPadding={{ x: 25 }}
               theme={VictoryTheme.material}
-              width={CHART_DATA.length > 5 ? CHART_DATA.length * 100 : 500}
+              width={CHART_DATA.length > 3 ? CHART_DATA.length * 140 : 500}
               height={
                 Dimensions.get("screen").height -
                 (Dimensions.get("screen").height * 40) / 100

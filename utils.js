@@ -9,3 +9,7 @@ export const getGraphData = (array) => {
   }
   return ARR_To_RETURN;
 };
+
+export const extractDate = (date) => {
+  return date.split(" ")[1];
+};
