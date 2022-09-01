@@ -1,12 +1,25 @@
 import { SafeAreaView, Text, View, StyleSheet, FlatList } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import Constants from "expo-constants";
 import { useSelector } from "react-redux";
 import { FontAwesome } from "@expo/vector-icons";
+import DropDownPicker from "react-native-dropdown-picker";
 
 export default function ListScreen() {
+  // States Data for Dropdown Picker
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState(dates_arr);
   var DATA = useSelector((state) => state.data.todayData);
   var DATA_TO_DISPLAY = [];
+  var ALL_DATA = useSelector((state) => state.data.allData);
+  var dates_arr = [];
+  Object.keys(ALL_DATA).map((item) => {
+    dates_arr.push({ label: item, value: item });
+  });
+  React.useEffect(() => {
+    setItems(dates_arr);
+  }, []);
   if (DATA != []) {
     // DATA = DATA["30-8-2022"]["DATA_FROM_STORE"];
     for (var i = 0; i < DATA.length; i++) {
@@ -73,22 +86,41 @@ export default function ListScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>List Screen</Text>
-      <FlatList
-        data={DATA_TO_DISPLAY}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
+      <DropDownPicker
+        open={open}
+        value={value}
+        items={items}
+        setOpen={setOpen}
+        setValue={setValue}
+        setItems={setItems}
       />
+      {DATA != [] ? (
+        <FlatList
+          style={{ marginTop: 10 }}
+          data={DATA_TO_DISPLAY}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      ) : (
+        <Text
+          style={{
+            fontSize: 20,
+            alignSelf: "center",
+            marginTop: 200,
+          }}
+        >
+          No Data Available
+        </Text>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
     paddingTop: Constants.statusBarHeight,
     padding: 8,
-    marginBottom: 100,
+    marginBottom: 220,
   },
   childContainer: {
     flexDirection: "row",

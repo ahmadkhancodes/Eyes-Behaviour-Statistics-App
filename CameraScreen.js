@@ -20,6 +20,7 @@ export default function CameraScreen() {
   // Calculating Eyes shuting Time
   const [eyesShutsData, setEyesShutsData] = useState([]);
   const [eyesOnTime, setEyesOnTime] = useState();
+  const [eyesOnTimeStamp, setEyesOnTimeStamp] = useState();
 
   const [hasPermission, setHasPermission] = React.useState(); //for storing camera permission
   const [faceData, setFaceData] = React.useState([]); //in this state we are storing user face expressions
@@ -109,6 +110,7 @@ export default function CameraScreen() {
     if (eyesShut && timeReset == 0) {
       var AMPM = new Date().getHours() < 12 ? "AM" : "PM";
       var today = new Date();
+      var oNtimeStamp = today.getTime();
       var time =
         today.getHours() +
         ":" +
@@ -118,12 +120,14 @@ export default function CameraScreen() {
         " " +
         AMPM;
       setEyesOnTime(time);
+      setEyesOnTimeStamp(oNtimeStamp);
       // console.log("Eyes Shut On: ", eyesShut, " Time : ", time);
       timeReset++;
     }
     if (!eyesShut && timeReset != 0) {
       var AMPM = new Date().getHours() < 12 ? "AM" : "PM";
       var today = new Date();
+      var timeStamp = today.getTime();
       var time =
         today.getHours() +
         ":" +
@@ -146,6 +150,7 @@ export default function CameraScreen() {
             shutOnTime: eyesOnTime,
             shutOffTime: time,
             date: dateKey + "-" + new Date().getDay(),
+            diff: (timeStamp - eyesOnTimeStamp) / 1000 / 60,
           })
         );
         console.log("Today DATA : ", DATA_FROM_STORE);
