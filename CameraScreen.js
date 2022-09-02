@@ -143,14 +143,17 @@ export default function CameraScreen() {
       // console.log("Eyes Shut Close: ", eyesShut, " Time : ", time);
       timeReset = 0;
       if (eyesOnTime != time) {
-        dispatch(
-          dataActions.addData({
-            shutOnTime: eyesOnTime,
-            shutOffTime: time,
-            date: dateKey + "-" + new Date().getDay(),
-            diff: (timeStamp - eyesOnTimeStamp) / 1000 / 60,
-          })
-        );
+        var diff = (timeStamp - eyesOnTimeStamp) / 1000 / 60;
+        if (diff > 0.1) {
+          dispatch(
+            dataActions.addData({
+              shutOnTime: eyesOnTime,
+              shutOffTime: time,
+              date: dateKey + "-" + new Date().getDay(),
+              diff: diff,
+            })
+          );
+        }
         // console.log("Today DATA : ", DATA_FROM_STORE);
       }
       setEyesOnTime(0);
